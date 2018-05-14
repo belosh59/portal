@@ -1,0 +1,10 @@
+serverPort: 8090
+connectionTimeout: 500
+maxThreads: 73
+minThreads: 27
+idleThreads: 36
+threadTimeout: 30
+cachedPool: true
+unpackWARs: true
+autoDeploy: false
+applicationScannerInterval: 5000
