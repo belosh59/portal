@@ -1,6 +1,7 @@
 package com.belosh.portal.parser
 
-import com.belosh.portal.entity.ServerDefinition
+import com.belosh.portal.server.entity.ServerDefinition
+import com.belosh.portal.server.parser.ServerDefinitionParser
 import org.junit.Assert
 import org.junit.Test
 
@@ -14,13 +15,11 @@ class ServerDefinitionParserTest {
 
         Assert.assertEquals(serverDefinition.serverPort, 8090)
         Assert.assertEquals(serverDefinition.connectionTimeout, 500)
-        Assert.assertEquals(serverDefinition.maxThreads, 73)
-        Assert.assertEquals(serverDefinition.minThreads, 27)
-        Assert.assertEquals(serverDefinition.idleThreads, 36)
+        Assert.assertEquals(serverDefinition.maxThreads, 20)
+        Assert.assertEquals(serverDefinition.idleThreads, 10)
         Assert.assertEquals(serverDefinition.threadTimeout, 30)
         Assert.assertEquals(serverDefinition.cachedPool, true)
         Assert.assertEquals(serverDefinition.unpackWARs, true)
         Assert.assertEquals(serverDefinition.autoDeploy, false)
-        Assert.assertEquals(serverDefinition.applicationScannerInterval, 5000)
     }
 }

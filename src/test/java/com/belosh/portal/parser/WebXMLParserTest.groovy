@@ -1,13 +1,18 @@
 package com.belosh.portal.parser
 
-import com.belosh.portal.entity.ServletDefinition
+import com.belosh.portal.application.parser.WebXMLParser
+import com.belosh.portal.servlet.entity.ServletDefinition
 import org.junit.Assert
 import org.junit.Test
+
+import java.nio.file.Path
+import java.nio.file.Paths
 
 class WebXMLParserTest {
     @Test
     void parseWebXML() {
-        Map<String, ServletDefinition> servletDefinitionMap = WebXMLParser.parseWebXml("web.xml")
+        Path pathWebXml = Paths.get(".\\src\\test\\resources\\web.xml")
+        Map<String, ServletDefinition> servletDefinitionMap = WebXMLParser.parseWebXml(pathWebXml)
 
         ServletDefinition perfectServlet = servletDefinitionMap.get("PerfectServlet")
         ServletDefinition helloServlet = servletDefinitionMap.get("HelloServlet")
@@ -15,7 +20,7 @@ class WebXMLParserTest {
 
         Assert.assertEquals('PerfectServlet', perfectServlet.getServletName())
         Assert.assertEquals('mypackage.PerfectClass', perfectServlet.getServletClass())
-        Assert.assertEquals('/perfect-url', perfectServlet.getUrlPattern())
+        Assert.assertEquals('/perfect-requestURI', perfectServlet.getUrlPattern())
         Assert.assertNull(perfectServlet.getServletDescription())
 
         Assert.assertEquals('HelloServlet', helloServlet.getServletName())
@@ -27,5 +32,7 @@ class WebXMLParserTest {
         Assert.assertEquals('mypackage.AnotherClass', anotherServlet.getServletClass())
         Assert.assertNull(anotherServlet.getUrlPattern())
         Assert.assertNull(anotherServlet.getServletDescription())
+
+
     }
 }

@@ -1,24 +1,24 @@
 package com.belosh.portal.exception;
 
-import com.belosh.portal.http.StatusCode;
+import com.belosh.portal.http.header.HttpStatus;
 
 public class WebServerException extends RuntimeException {
-    private StatusCode errorStatus;
+    private HttpStatus errorStatus;
     private String message;
 
-    public WebServerException(String message, Throwable cause, StatusCode errorStatus) {
+    public WebServerException(String message, Throwable cause, HttpStatus errorStatus) {
         super(message, cause);
         this.errorStatus = errorStatus;
         this.message = message;
     }
 
-    public WebServerException(String message, StatusCode errorStatus) {
+    public WebServerException(String message, HttpStatus errorStatus) {
         super(message);
         this.errorStatus = errorStatus;
         this.message = message;
     }
 
-    public StatusCode getErrorStatus() {
+    public HttpStatus getErrorStatus() {
         return errorStatus;
     }
 

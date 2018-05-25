@@ -10,14 +10,4 @@
 	based on the recommendations of the Application Developer's Guide.
     </description>
 
-    <servlet>
-        <servlet-name>HelloServlet</servlet-name>
-        <servlet-class>mypackage.Hello</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>HelloServlet</servlet-name>
-        <url-pattern>/hello</url-pattern>
-    </servlet-mapping>
-
 </web-app>

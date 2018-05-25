@@ -1,12 +1,12 @@
 package com.belosh.portal
 
+import com.belosh.portal.server.Server
 import org.junit.Test
 
 class ServerTest {
     @Test
     void stater() {
-        Server server = new Server()
-        server.start()
+        Server.main()
     }
 
 }
