@@ -1,8 +1,7 @@
 package com.belosh.portal.application.entity;
 
 import com.belosh.portal.application.adapter.ServletContextAdapter;
-import com.belosh.portal.chain.PortalFilterChain;
-import com.belosh.portal.chain.entity.Pattern;
+import com.belosh.portal.chain.entity.UrlPattern;
 import com.belosh.portal.io.entity.Resource;
 import com.belosh.portal.io.reader.ResourceReader;
 
@@ -17,13 +16,13 @@ import java.util.*;
 
 public class Application extends ServletContextAdapter {
 
-    private String applicationName;
-    private Path applicationPath;
+    private final String applicationName;
+    private final Path applicationPath;
     private ClassLoader classLoader;
-    private Map<String, HttpServlet> urlPatternToServlet = new HashMap<>();
-    private Map<Pattern, Filter> applicationFilters = new HashMap<>();
-    private Map<String, Object> attributes = new HashMap<>();
-    private ResourceReader resourceReader;
+    private final Map<String, HttpServlet> urlPatternToServlet = new HashMap<>();
+    private final Map<UrlPattern, Filter> applicationFilters = new HashMap<>();
+    private final Map<String, Object> attributes = new HashMap<>();
+    private final ResourceReader resourceReader;
 
     public Application(String applicationName, Path applicationPath) {
         this.applicationName = applicationName;
@@ -51,11 +50,11 @@ public class Application extends ServletContextAdapter {
         return resourceReader.getResource(url);
     }
 
-    public void addFilter(Pattern pattern, Filter filter) {
-        applicationFilters.put(pattern, filter);
+    public void addFilter(UrlPattern urlPattern, Filter filter) {
+        applicationFilters.put(urlPattern, filter);
     }
 
-    public Map<Pattern, Filter> getApplicationFilters() {
+    public Map<UrlPattern, Filter> getApplicationFilters() {
         return applicationFilters;
     }
 
@@ -117,10 +116,6 @@ public class Application extends ServletContextAdapter {
         }
 
         Set<String> urlPatterns = urlPatternToServlet.keySet();
-        if (urlPatterns == null) {
-            return null;
-        }
-
         for (String urlPattern : urlPatterns) {
             int patternLength = urlPattern.length();
             if (uri.startsWith(urlPattern) && maxPatternLength < patternLength) {

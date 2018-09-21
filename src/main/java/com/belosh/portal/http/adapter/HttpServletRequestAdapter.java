@@ -33,12 +33,12 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration getHeaders(String s) {
+    public Enumeration<String> getHeaders(String s) {
         return null;
     }
 
     @Override
-    public Enumeration getHeaderNames() {
+    public Enumeration<String> getHeaderNames() {
         return null;
     }
 
@@ -178,7 +178,7 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
         return null;
     }
 
@@ -218,7 +218,7 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration getParameterNames() {
+    public Enumeration<String> getParameterNames() {
         return null;
     }
 
@@ -228,7 +228,7 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public Map getParameterMap() {
+    public Map<String, String[]> getParameterMap() {
         return null;
     }
 
@@ -283,7 +283,7 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration getLocales() {
+    public Enumeration<Locale> getLocales() {
         return null;
     }
 

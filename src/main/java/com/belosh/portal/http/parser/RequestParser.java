@@ -24,7 +24,7 @@ public class RequestParser {
     private static final String DELIMITER = ": ";
     private static final String DEFAULT_APPLICATION = "ROOT";
     private static final String DEFAULT_PAGE = "index.html";
-    private ApplicationManager applicationManager;
+    private final ApplicationManager applicationManager;
 
     public RequestParser(ApplicationManager applicationManager) {
         this.applicationManager = applicationManager;

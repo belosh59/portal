@@ -3,8 +3,8 @@ package com.belosh.portal.exception;
 import com.belosh.portal.http.header.HttpStatus;
 
 public class WebServerException extends RuntimeException {
-    private HttpStatus errorStatus;
-    private String message;
+    private final HttpStatus errorStatus;
+    private final String message;
 
     public WebServerException(String message, Throwable cause, HttpStatus errorStatus) {
         super(message, cause);

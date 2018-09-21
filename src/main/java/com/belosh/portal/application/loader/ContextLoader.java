@@ -82,10 +82,10 @@ public class ContextLoader {
             Path applicationLibPath = application.getApplicationPath().resolve(APP_LIB_PATH);
 
             try {
-                List<URL> uris = new ArrayList<>();
+                List<URL> urlList = new ArrayList<>();
                 try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(applicationLibPath)) {
                     for (Path libPath : directoryStream) {
-                        uris.add(libPath.toUri().toURL());
+                        urlList.add(libPath.toUri().toURL());
                     }
                 } catch (IOException e) {
                     logger.error("Unable to load application libs for: " + applicationLibPath, e);
@@ -93,15 +93,14 @@ public class ContextLoader {
                 }
 
                 URL urlClasses = applicationClassesPath.toUri().toURL();
-                uris.add(urlClasses);
+                urlList.add(urlClasses);
 
-                int urisCount = uris.size();
-                URL[] urls = new URL[urisCount];
-                urls = uris.toArray(urls);
+                int urisCount = urlList.size();
+                URL[] urlArray = new URL[urisCount];
+                urlArray = urlList.toArray(urlArray);
 
-                URLClassLoader urlClassLoader = new URLClassLoader(urls);
+                URLClassLoader urlClassLoader = new URLClassLoader(urlArray);
                 application.setClassLoader(urlClassLoader);
-                urlClassLoader.getURLs();
 
                 Thread.currentThread().setContextClassLoader(urlClassLoader);
 

@@ -7,8 +7,8 @@ import javax.servlet.ServletContext;
 import java.util.Enumeration;
 
 public class PortalFilterConfig implements FilterConfig {
-    private ServletContext context;
-    private String filterName;
+    private final ServletContext context;
+    private final String filterName;
 
     public PortalFilterConfig(Application application, String filterName) {
         this.context = application;

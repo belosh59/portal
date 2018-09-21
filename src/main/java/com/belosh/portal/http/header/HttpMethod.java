@@ -6,7 +6,7 @@ public enum HttpMethod {
     PUT("PUT"),
     DELETE("DELETE");
 
-    private String name;
+    private final String name;
 
     HttpMethod(String name) {
         this.name = name;

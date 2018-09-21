@@ -1,7 +1,7 @@
 package com.belosh.portal.http.header;
 
 
-// TODO: should be rewrited to use HttpServletResponse codes
+// TODO: should be re-written to use HttpServletResponse codes
 public enum HttpStatus {
     OK(200, "OK"),
     NOT_FOUND(404, "Not Found"),

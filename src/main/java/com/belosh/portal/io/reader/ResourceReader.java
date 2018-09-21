@@ -13,7 +13,7 @@ public class ResourceReader {
 
     private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private Path applicationPath;
+    private final Path applicationPath;
 
     public ResourceReader(Path applicationPath) {
         this.applicationPath = applicationPath;

@@ -14,14 +14,6 @@ public class FilterDefinition {
         this.filterName = filterName;
     }
 
-    public String getFilterDescription() {
-        return filterDescription;
-    }
-
-    public void setFilterDescription(String filterDescription) {
-        this.filterDescription = filterDescription;
-    }
-
     public String getFilterClass() {
         return filterClass;
     }

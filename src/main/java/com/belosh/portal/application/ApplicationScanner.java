@@ -12,9 +12,9 @@ public class ApplicationScanner implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final String DEFAULT_WEBAPP_PATH = "./webapps";
     private static final String ARCHIVE_EXTENSION = ".war";
-    private List<String> processedApplications = new ArrayList<>();
-    private List<String> unzippedWARs = new ArrayList<>();
-    private ApplicationManager applicationManager;
+    private final List<String> processedApplications = new ArrayList<>();
+    private final List<String> unzippedWARs = new ArrayList<>();
+    private final ApplicationManager applicationManager;
     private boolean autoDeploy = true;
     private boolean unpackWARs = true;
 
@@ -47,41 +47,46 @@ public class ApplicationScanner implements Runnable {
         }
     }
 
-    private boolean processApplication(Path applicationPath) {
+    private void processApplication(Path applicationPath) {
+        // Validation
         String applicationName = applicationPath.getFileName().toString();
         if (!processedApplications.contains(applicationName) && !unzippedWARs.contains(applicationName)) {
-            if (Files.isDirectory(applicationPath)) {
-                logger.info("New application found, starting deployment: {}", applicationName);
-                applicationManager.deployApplication(applicationPath);
-                processedApplications.add(applicationName);
-
-            } else if (applicationName.endsWith(ARCHIVE_EXTENSION)) {
-                if (!unpackWARs) {
-                    logger.warn("Archive: {}, will not be unpacked due to unpackWARs = false in server.yml", applicationName);
-                    return false;
-                }
-
-                String targetApplicationName = applicationName.replace(ARCHIVE_EXTENSION, "");
-
-                logger.info("New archive found: " + applicationName);
-                if (!processedApplications.contains(targetApplicationName)) {
-                   Unpacker.unpackWAR(applicationPath);
-                   logger.info("WAR archive unpacked: " + applicationName);
-
-                   Path unpackedApplication = applicationPath.getParent().resolve(targetApplicationName).normalize();
-                   processApplication(unpackedApplication);
-
-                } else {
-                   unzippedWARs.add(applicationName);
-                   logger.warn("Application with the same name already registered. WAR achieve will not be unpacked for: {}", applicationName);
-                }
-            } else {
-                logger.warn("Processing skipped. Invalid application: {}" , applicationName);
-                return false;
-            }
-            return true;
+            return;
         }
-        return false;
+
+        if (applicationName.endsWith(ARCHIVE_EXTENSION) && !unpackWARs) {
+            logger.warn("Archive: {}, will not be unpacked due to unpackWARs = false in server.yml", applicationName);
+            return;
+        }
+
+        // Process unpack
+        if (Files.isDirectory(applicationPath)) {
+            logger.info("New application found, starting deployment: {}", applicationName);
+            applicationManager.deployApplication(applicationPath);
+            processedApplications.add(applicationName);
+
+        } else if (applicationName.endsWith(ARCHIVE_EXTENSION)) {
+            processArchive(applicationPath, applicationName);
+        } else {
+            logger.warn("Processing skipped. Invalid application: {}" , applicationName);
+        }
+    }
+
+    private void processArchive(Path applicationPath, String applicationName) {
+        String targetApplicationName = applicationName.replace(ARCHIVE_EXTENSION, "");
+
+        logger.info("New archive found: " + applicationName);
+        if (!processedApplications.contains(targetApplicationName)) {
+           Unpacker.unpackWAR(applicationPath);
+           logger.info("WAR archive unpacked: " + applicationName);
+
+           Path unpackedApplication = applicationPath.getParent().resolve(targetApplicationName).normalize();
+           processApplication(unpackedApplication);
+
+        } else {
+           unzippedWARs.add(applicationName);
+           logger.warn("Application with the same name already registered. WAR achieve will not be unpacked for: {}", applicationName);
+        }
     }
 
     private void scanExistingApplications(Path path) throws IOException {

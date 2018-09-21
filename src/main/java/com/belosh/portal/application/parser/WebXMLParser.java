@@ -15,24 +15,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 public class WebXMLParser {
-
-    private Map<String, ServletDefinition> servletToServletDefinition;
-
-    private Map<String, FilterDefinition> filterToServletDefinition;
-
     private final Logger logger = LoggerFactory.getLogger(WebXMLParser.class);
+    private final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
-    public void parseWebXml(Path webXmlPath) {
-        servletToServletDefinition = new HashMap<>();
-        filterToServletDefinition = new HashMap<>();
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    public void parseWebXml(Path webXmlPath,
+                            Map<String, ServletDefinition> servletToServletDefinition,
+                            Map<String, FilterDefinition> filterToServletDefinition) {
+
         try {
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            DocumentBuilder dBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = dBuilder.parse(webXmlPath.toFile());
             document.getDocumentElement().normalize();
 
@@ -40,74 +34,22 @@ public class WebXMLParser {
             Servlet Section
              */
             NodeList servlets = document.getElementsByTagName("servlet");
-            for (int i = 0; i < servlets.getLength(); i++){
-                Node servlet = servlets.item(i);
-                if (servlet.getNodeType() == Node.ELEMENT_NODE) {
-                    ServletDefinition servletDefinition = new ServletDefinition();
-                    //Process root
-                    Element elementServlet = (Element) servlet;
-
-                    String servletName = elementServlet.getElementsByTagName("servlet-name").item(0).getTextContent();
-                    String servletClass = elementServlet.getElementsByTagName("servlet-class").item(0).getTextContent();
-                    servletDefinition.setServletName(servletName);
-                    servletDefinition.setServletClass(servletClass);
-
-                    servletToServletDefinition.put(servletName, servletDefinition);
-                }
-            }
+            processServletDefinitions(servletToServletDefinition, servlets);
 
             NodeList servletMappings = document.getElementsByTagName("servlet-mapping");
-            for (int i = 0; i < servletMappings.getLength(); i++){
-                Node servlet = servletMappings.item(i);
-                if (servlet.getNodeType() == Node.ELEMENT_NODE) {
-                    //Process root
-                    Element elementServlet = (Element) servlet;
-
-                    String servletName = elementServlet.getElementsByTagName("servlet-name").item(0).getTextContent();
-                    String urlPattern = elementServlet.getElementsByTagName("url-pattern").item(0).getTextContent();
-
-                    ServletDefinition servletDefinition = servletToServletDefinition.get(servletName);
-                    servletDefinition.setUrlPattern(urlPattern);
-                }
-            }
+            processServletMappingDefinition(servletToServletDefinition, servletMappings);
 
             /*
             Filters Section
              */
             NodeList filters = document.getElementsByTagName("filter");
-            for (int i = 0; i < filters.getLength(); i++){
-                Node filter = filters.item(i);
-                if (filter.getNodeType() == Node.ELEMENT_NODE) {
-                    FilterDefinition filterDefinition = new FilterDefinition();
-                    //Process root
-                    Element elementServlet = (Element) filter;
-
-                    String filterName = elementServlet.getElementsByTagName("filter-name").item(0).getTextContent();
-                    String filterClass = elementServlet.getElementsByTagName("filter-class").item(0).getTextContent();
-                    filterDefinition.setFilterName(filterName);
-                    filterDefinition.setFilterClass(filterClass);
-
-                    filterToServletDefinition.put(filterName, filterDefinition);
-                }
-            }
+            processFilterDefinition(filterToServletDefinition, filters);
 
             NodeList filterMappings = document.getElementsByTagName("filter-mapping");
-            for (int i = 0; i < filterMappings.getLength(); i++){
-                Node filter = filterMappings.item(i);
-                if (filter.getNodeType() == Node.ELEMENT_NODE) {
-                    //Process root
-                    Element elementServlet = (Element) filter;
-
-                    String filterName = elementServlet.getElementsByTagName("filter-name").item(0).getTextContent();
-                    String urlPattern = elementServlet.getElementsByTagName("url-pattern").item(0).getTextContent();
-
-                    FilterDefinition filterDefinition = filterToServletDefinition.get(filterName);
-                    filterDefinition.setUrlPattern(urlPattern);
-                }
-            }
+            processFilterMappingDefinition(filterToServletDefinition, filterMappings);
         } catch (IOException e) {
             logger.error("Unable to load document", e);
-            throw new RuntimeException(e);
+            throw new RuntimeException("Unable to load document", e);
         } catch (SAXException e) {
             logger.error("Unable to parse xml from stream", e);
             throw new RuntimeException("Unable to parse xml from stream", e);
@@ -117,11 +59,75 @@ public class WebXMLParser {
         }
     }
 
-    public Collection<ServletDefinition> getServletDefinitions() {
-        return servletToServletDefinition.values();
+    private void processFilterMappingDefinition(Map<String, FilterDefinition> filterToServletDefinition,
+                                                NodeList filterMappings) {
+        for (int i = 0; i < filterMappings.getLength(); i++){
+            Node filter = filterMappings.item(i);
+            if (filter.getNodeType() == Node.ELEMENT_NODE) {
+                //Process root
+                Element elementServlet = (Element) filter;
+
+                String filterName = elementServlet.getElementsByTagName("filter-name").item(0).getTextContent();
+                String urlPattern = elementServlet.getElementsByTagName("url-pattern").item(0).getTextContent();
+
+                FilterDefinition filterDefinition = filterToServletDefinition.get(filterName);
+                filterDefinition.setUrlPattern(urlPattern);
+            }
+        }
     }
 
-    public Collection<FilterDefinition> getFilterDefinitions() {
-        return filterToServletDefinition.values();
+    private void processFilterDefinition(Map<String, FilterDefinition> filterToServletDefinition,
+                                         NodeList filters) {
+        for (int i = 0; i < filters.getLength(); i++){
+            Node filter = filters.item(i);
+            if (filter.getNodeType() == Node.ELEMENT_NODE) {
+                FilterDefinition filterDefinition = new FilterDefinition();
+                //Process root
+                Element elementServlet = (Element) filter;
+
+                String filterName = elementServlet.getElementsByTagName("filter-name").item(0).getTextContent();
+                String filterClass = elementServlet.getElementsByTagName("filter-class").item(0).getTextContent();
+                filterDefinition.setFilterName(filterName);
+                filterDefinition.setFilterClass(filterClass);
+
+                filterToServletDefinition.put(filterName, filterDefinition);
+            }
+        }
+    }
+
+    private void processServletMappingDefinition(Map<String, ServletDefinition> servletToServletDefinition,
+                                                 NodeList servletMappings) {
+        for (int i = 0; i < servletMappings.getLength(); i++){
+            Node servlet = servletMappings.item(i);
+            if (servlet.getNodeType() == Node.ELEMENT_NODE) {
+                //Process root
+                Element elementServlet = (Element) servlet;
+
+                String servletName = elementServlet.getElementsByTagName("servlet-name").item(0).getTextContent();
+                String urlPattern = elementServlet.getElementsByTagName("url-pattern").item(0).getTextContent();
+
+                ServletDefinition servletDefinition = servletToServletDefinition.get(servletName);
+                servletDefinition.setUrlPattern(urlPattern);
+            }
+        }
+    }
+
+    private void processServletDefinitions(Map<String, ServletDefinition> servletToServletDefinition,
+                                           NodeList servlets) {
+        for (int i = 0; i < servlets.getLength(); i++){
+            Node servlet = servlets.item(i);
+            if (servlet.getNodeType() == Node.ELEMENT_NODE) {
+                ServletDefinition servletDefinition = new ServletDefinition();
+                //Process root
+                Element elementServlet = (Element) servlet;
+
+                String servletName = elementServlet.getElementsByTagName("servlet-name").item(0).getTextContent();
+                String servletClass = elementServlet.getElementsByTagName("servlet-class").item(0).getTextContent();
+                servletDefinition.setServletName(servletName);
+                servletDefinition.setServletClass(servletClass);
+
+                servletToServletDefinition.put(servletName, servletDefinition);
+            }
+        }
     }
 }

@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class Unpacker {
+class Unpacker {
     private static final Logger logger = LoggerFactory.getLogger(Unpacker.class);
     public static void unpackWAR(Path applicationPath) {
         byte[] buffer = new byte[1024];

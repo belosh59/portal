@@ -15,10 +15,10 @@ import java.util.Map;
 
 public class PortalServletResponse extends HttpServletResponseAdapter implements Closeable {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private PortalServletOutputStream servletOutputStream;
-    private PrintWriter servletPrintWriter;
+    private final PortalServletOutputStream servletOutputStream;
+    private final PrintWriter servletPrintWriter;
     private HttpStatus status;
-    private Map<String, String> responseHeaders;
+    private final Map<String, String> responseHeaders;
     private int bufferContentLength;
     private Cookie cookie;
 
@@ -79,9 +79,9 @@ public class PortalServletResponse extends HttpServletResponseAdapter implements
         return responseHeaders.containsKey(key);
     }
 
-    public void setChunkedTransferEncoding() {
-        responseHeaders.put("Transfer-Encoding", "chunked");
-    }
+//    public void setChunkedTransferEncoding() {
+//        responseHeaders.put("Transfer-Encoding", "chunked");
+//    }
 
     public Map<String, String> getResponseHeaders() {
         return responseHeaders;
@@ -112,9 +112,9 @@ public class PortalServletResponse extends HttpServletResponseAdapter implements
 
     class PortalServletOutputStream extends ServletOutputStream {
         private static final int DEFAULT_BUFFER_SIZE = 1024 * 16;
-        private byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        private final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         private int index;
-        private OutputStream socketOutputStream;
+        private final OutputStream socketOutputStream;
         boolean headersSent = false;
 //        boolean chunkEncoding = false;
 

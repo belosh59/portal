@@ -53,9 +53,9 @@ public class HeaderGenerator {
         return builder.toString().getBytes();
     }
 
-    public static byte[] getGeneralHeader(HttpStatus statusCode) {
-        return (PROTOCOL + SPACE + statusCode.getStatusCode() + SPACE + statusCode.getStatusMessage() + NEWLINE + NEWLINE).getBytes();
-    }
+//    public static byte[] getGeneralHeader(HttpStatus statusCode) {
+//        return (PROTOCOL + SPACE + statusCode.getStatusCode() + SPACE + statusCode.getStatusMessage() + NEWLINE + NEWLINE).getBytes();
+//    }
 
     private static void injectDefaultHeaders(PortalServletResponse response) {
         response.setHeader(SERVER_KEY, SERVER_SIGNATURE);

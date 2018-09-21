@@ -6,6 +6,7 @@ import com.belosh.portal.application.ApplicationManager;
 import com.belosh.portal.application.ApplicationScanner;
 import com.belosh.portal.server.handler.RequestHandler;
 import com.belosh.portal.server.parser.ServerDefinitionParser;
+import com.sun.istack.internal.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,7 @@ import java.net.Socket;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Server {
+class Server {
     private final static Logger logger = LoggerFactory.getLogger(Server.class);
     private final static String DEFAULT_SERVER_CONFIG_PATH = "/server.yml";
 
@@ -40,27 +41,23 @@ public class Server {
         applicationScanner.setUnpackWARs(serverDefinition.isUnpackWARs());
 
         // Configure Thread Pool
-        ExecutorService executorService;
+        int maxThreads = serverDefinition.getMaxThreads();
+        boolean isCached = serverDefinition.isCachedPool();
+        int corePoolSize = isCached ? serverDefinition.getIdleThreads() : maxThreads;
+        long keepAliveTime = isCached ? serverDefinition.getThreadTimeout() : 0L;
+        BlockingQueue<Runnable> workQueue = isCached ? new SynchronousQueue<>() : new LinkedBlockingQueue<>();
         PortalThreadFactory portalThreadFactory = new PortalThreadFactory();
 
-        if (serverDefinition.isCachedPool()) {
-            executorService = new ThreadPoolExecutor(serverDefinition.getIdleThreads(),
-                    serverDefinition.getMaxThreads(),
-                    serverDefinition.getThreadTimeout(),
-                    TimeUnit.SECONDS,
-                    new SynchronousQueue<>(),
-                    portalThreadFactory);
-        } else {
-            int maxThreads = serverDefinition.getMaxThreads();
-            executorService = new ThreadPoolExecutor(maxThreads,
-                    maxThreads,
-                    0L,
-                    TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(),
-                    portalThreadFactory);
-        }
-        executorService.submit(applicationScanner);
+        ExecutorService executorService = new ThreadPoolExecutor(
+                corePoolSize,
+                maxThreads,
+                keepAliveTime,
+                TimeUnit.SECONDS,
+                workQueue,
+                portalThreadFactory);
+        executorService.execute(applicationScanner);
 
+        //noinspection InfiniteLoopStatement
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
@@ -70,21 +67,19 @@ public class Server {
                         socket.getLocalSocketAddress());
                 RequestHandler requestHandler = new RequestHandler(socket, requestParser);
 
-                executorService.submit(requestHandler);
+                executorService.execute(requestHandler);
             } catch (IOException e) {
-                e.printStackTrace();
                 logger.error("Unable to accept socket", e);
             }
         }
     }
 
-    // TODO: Looks like not working
     static class PortalThreadFactory implements ThreadFactory {
         private final AtomicInteger threadNumber = new AtomicInteger(1);
         private final String namePrefix = "request-handlers-thread-";
 
         @Override
-        public Thread newThread(Runnable r) {
+        public Thread newThread(@SuppressWarnings("NullableProblems") Runnable r) {
             Thread thread = new Thread(r);
             thread.setName(namePrefix + threadNumber.getAndIncrement());
             thread.setUncaughtExceptionHandler((t, e) -> logger.error("Uncaught exception in thread: {}", t.getName(), e));

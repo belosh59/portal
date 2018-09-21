@@ -6,16 +6,14 @@ import com.belosh.portal.http.header.HttpMethod;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
 
 public class PortalServletRequest extends HttpServletRequestAdapter {
     private String requestURI;
     private String servletPath;
-    private Map<String, String> headers = new HashMap<>();
-    private Map<String, String> parameters = new HashMap<>();
+    private final Map<String, String> headers = new HashMap<>();
+    private final Map<String, String> parameters = new HashMap<>();
     private HttpMethod method;
     private String redirectPath;
     private Application application;
@@ -67,10 +65,6 @@ public class PortalServletRequest extends HttpServletRequestAdapter {
         return redirectPath;
     }
 
-    public void setRedirectPath(String redirectPath) {
-        this.redirectPath = redirectPath;
-    }
-
     public void setApplication(Application application) {
         this.application = application;
     }
@@ -91,11 +85,6 @@ public class PortalServletRequest extends HttpServletRequestAdapter {
     @Override
     public String getServletPath() {
         return servletPath;
-    }
-
-    @Override
-    public BufferedReader getReader() throws IOException {
-        return super.getReader();
     }
 
     public void setContextPath(String contextPath) {
@@ -119,9 +108,5 @@ public class PortalServletRequest extends HttpServletRequestAdapter {
     @Override
     public Principal getUserPrincipal() {
         return principal;
-    }
-
-    public void setPrincipal(Principal principal) {
-        this.principal = principal;
     }
 }
